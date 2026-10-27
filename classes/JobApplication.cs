@@ -8,11 +8,8 @@ namespace Job_Application_Tracker
 
      public class JobApplication
      {
-        private string? company;
-        private string? position;
-        private int salary;
-
         //attributer 
+        // { get; set; } betyder att andra klasser kan läsa (get) och ändra (set) värdet
         public string CompanyName { get; set; }
         public string PositionTitle { get; set; }
         public Status Status { get; set; } = Status.Applied;  //Ger standardvärde som den kan starta med 
@@ -24,6 +21,7 @@ namespace Job_Application_Tracker
         //konstruktorn är den metod som körs automatiskt när man skapar ett nytt objekt.
         //Den tar emot värden utifrån de arguemnt och sparar i objektets egna egenskaper.
         //Attributer + de parametrar som finns under konstruktor 
+        //konstruktorn heter samma som klassen och har ingen returtyp (inte ens void).
         public JobApplication(string companyName, string positionTitle, DateTime applicationDate, int salaryExpectation, Status status, DateTime? responseDate)
         {
             CompanyName = companyName;
@@ -43,8 +41,26 @@ namespace Job_Application_Tracker
         }
 
         //metod 2
+        // Kravet säger att metoden ska RETURNERA text (string), inte skriva ut den själv.
+        // Tips att minnas: return = kassören lämnar över kvittot. Utskriften sköter PrintSummary() nedan.
         //Returnerar en kort sammanfattning av ansökan
-        public void GetSummary()
+        public string GetSummary()
+        {
+            // Välj färg beroende på status
+            {
+                // ?. och ?? = om ResponseDate är tomt (null) skriver vi "Inget svar än" i stället
+                string response = ResponseDate?.ToString("yyyy-MM-dd") ?? "Inget svar än";
+
+                return $"Company: {CompanyName} | Position: {PositionTitle} | " +
+                       $"Status: {Status} | Applied: {ApplicationDate:yyyy-MM-dd} | " +
+                       $"Response: {response} | Salary: {SalaryExpectation} kr";
+            }
+        }
+
+       //metod 3 (min egen)
+       // Skriver ut sammanfattningen i RÄTT FÄRG beroende på status (VG-krav: färger i konsolen).
+       // Tips att minnas: sätt färg -> skriv -> ResetColor (som en överstrykningspenna med lock).
+        public void PrintSummary()
         {
             // Välj färg beroende på status
             switch (Status)
@@ -61,11 +77,9 @@ namespace Job_Application_Tracker
                     // Applied behåller standardfärgen
             }
 
-            Console.WriteLine($"Company: {CompanyName} | Position: {PositionTitle} | " +
-                              $"Status: {Status} | Applied: {ApplicationDate:yyyy-MM-dd} | " +
-                              $"Salary: {SalaryExpectation} kr");
+            Console.WriteLine(GetSummary());
 
-            Console.ResetColor();   // sätt på locket
+            Console.ResetColor();   // sätt på locket, annars blir all text efteråt också färgad
         }
     }
 }
