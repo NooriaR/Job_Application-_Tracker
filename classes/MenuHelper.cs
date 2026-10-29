@@ -32,6 +32,8 @@ namespace Job_Application_Tracker
                 Console.WriteLine("5. Visa statistik (totalt antal, antal per status, genomsnittlig svarstid)");
                 Console.WriteLine("6. Uppdatera status på en ansökan");
                 Console.WriteLine("7. Ta bort en ansökan");
+                Console.WriteLine("8. Visa ansökningar utan svar äldre än 14 dagar");
+                Console.WriteLine("9. Avsluta programmet");
                 Console.WriteLine("8. Avsluta programmet");
                 Console.WriteLine("9. Visa ansökningar utan svar äldre än 14 dagar");
                 Console.Write("Ditt val: ");
@@ -66,12 +68,15 @@ namespace Job_Application_Tracker
                         manager.DeleteJob();
                         break;
                     case "8":
+                        manager.ShowOldWithoutResponse();
                         running = false; // loopen slutar när running blir false
                         Console.WriteLine("Programmet avslutat, lycka till!");
                         break;
                     case "9":
-                        manager.ShowOldWithoutResponse();
+                        running = false; // loopen slutar när running blir false
+                        Console.WriteLine("Programmet avslutat, lycka till!");
                         break;
+                  
                     default:
                         Console.WriteLine("Ogiltigt val, välj mellan 1-9.");
                         break;

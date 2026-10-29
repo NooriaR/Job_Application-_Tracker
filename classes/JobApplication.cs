@@ -5,7 +5,10 @@ using System.Text;
 
 namespace Job_Application_Tracker
 {
-
+    //JobApplication är ritningen för en ansökan.Den har egenskaper
+    // som företag, roll, status och datum, en konstruktor som fyller i
+    // dem när objektet skapas, och metoder som räknar dagar och visar
+    // en sammanfattning.
      public class JobApplication
      {
         //attributer 
@@ -18,6 +21,7 @@ namespace Job_Application_Tracker
         public int SalaryExpectation { get; set; }
 
 
+        //konstruktorn körs automatiskt när man skapar ett nytt objekt, det bestämmer vad ett objekt ska innehålla
         //konstruktorn är den metod som körs automatiskt när man skapar ett nytt objekt.
         //Den tar emot värden utifrån de arguemnt och sparar i objektets egna egenskaper.
         //Attributer + de parametrar som finns under konstruktor 

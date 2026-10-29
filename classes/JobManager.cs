@@ -15,6 +15,12 @@ namespace Job_Application_Tracker
         {
             while (true)
             {
+                Console.Write(question); // visa frågan (Write = ingen radbrytning)
+               // TryParse returnerar true om texten kan bli ett tal.
+               // Talet hamnar i variabeln "result" (out = skicka ut ett värde).
+                if (int.TryParse(Console.ReadLine(), out int result))
+                {
+                    return result; // giltigt tal, lämna tillbaka det och avsluta metoden
                 Console.Write(question);
                 if (int.TryParse(Console.ReadLine(), out int result))
                 {
@@ -43,6 +49,10 @@ namespace Job_Application_Tracker
             while (true)
             {
                 Console.Write(question);
+                // ?? "" betyder: om ReadLine ger null (inget), använd en tom text i stället
+                string input = Console.ReadLine() ?? "";
+
+                //if sats måste användas för att omvandla input/string från användaren till enum
                 string input = Console.ReadLine() ?? "";
 
                 //if sats måste användas för att få ut omvandla input/string från användaren till enum
@@ -70,6 +80,11 @@ namespace Job_Application_Tracker
 
             int lon = ReadInt("Lönekrav (kr): ");
 
+
+            DateTime datum = ReadDate("AnsökningsDatum (YYYY-MM-DD): ");
+
+            int lon = ReadInt("Lönekrav (kr): ");
+
             Status status = ReadStatus("Status (Applied, Interview, Offer, Rejected): ");
 
             DateTime? responseDate = null; //ger responsetime ett null värde, ingen har svarat än
@@ -82,6 +97,9 @@ namespace Job_Application_Tracker
         }
 
         //Denna metod används för att lägga in testdata. Min metod heter AddJobExample som anropas sedan i MenuHelper
+        // Lägger in en färdig ansökan utan att fråga användaren.
+        // Används i MenuHelper så att listan inte är tom när jag testar.
+        // Skillnaden mot AddJob: värdena skickas IN som parametrar.
         public void AddJobExample(string companyName, string title, DateTime applicationDate, int salaryExpectation, Status status, DateTime? responseDate)
         {
             JobApplication job = new JobApplication(companyName, title, applicationDate, salaryExpectation, status, responseDate);
@@ -89,6 +107,7 @@ namespace Job_Application_Tracker
         }
 
         // Visar alla ansökningar
+        //Går igenom listan och skriver ut varje ansökan med ett nummer.
         //count räknar antal objekt i listan
         public void ShowAll()
         {
@@ -100,6 +119,7 @@ namespace Job_Application_Tracker
             }
 
             //för varje job i applications skriv ut numret och räkna sedan upp det med 1, så att nästa ansökan får nästa nummer.
+            //hämta PrintSummary metoden (skriver ut informationen av varje jobb)
             //hämta PrintSummary metoden (skriver ut med färg)
             foreach (var job in Applications)
             {
@@ -109,8 +129,16 @@ namespace Job_Application_Tracker
         }
 
         // Uppdaterar status på en ansökan
+        //Först kollar metoden om listan är tom.
+        //Om den är det skriver den ett meddelande och avslutar med return, så att programmet inte försöker uppdatera något som inte finns.
         public void UpdateStatus()
         {
+            if (Applications.Count == 0) //Säkerhetskontroll: finns det något att uppdatera?
+            {
+                Console.WriteLine("Det finns inga ansökningar att uppdatera.");
+
+                // return avslutar metoden direkt, så att koden aldrig körs på en tom lista.
+                // Annars skulle programmet fråga efter ett nummer fast det inte finns något att välja.
             if (Applications.Count == 0)
             {
                 Console.WriteLine("Det finns inga ansökningar att uppdatera.");
@@ -125,6 +153,17 @@ namespace Job_Application_Tracker
             int number = ReadInt("Välj nummer på ansökan du vill uppdatera: ");
             int index = number - 1;
 
+            //Kontrollera att indexet finns: inte negativt OCH mindre än antalet ansökningar
+            if (index >= 0 && index < Applications.Count)
+            {
+                //Fråga efter ny status (frågar om tills den är giltig)
+                Status newStatus = ReadStatus("Ny status (Applied, Interview, Offer, Rejected): ");
+
+                //Applications[index] = ansökan på den platsen. Byt dess status.
+                Applications[index].Status = newStatus;
+
+                //Går man tillbaka till Applied tas svarsdatumet bort igen.
+                //Ifall new status inte är applied så uppdateras svarsdatumet till dagens datum
             //Ifall index är större eller lika med 0 och Applications.Count är större än index så finns ansökan
             if (index >= 0 && index < Applications.Count)
             {
@@ -150,10 +189,10 @@ namespace Job_Application_Tracker
             }
         }
 
-        //Först visa alla jobb/objekt
-        //Sedan ta bort jobb
+        //Skapar en metod som heter DeletJob, Kontrollerar om listan är tom. Sedan visas listan som frågar användaren om vilket jobb ska raderas. 
         public void DeleteJob()
         {
+            if (Applications.Count == 0) //ifall listan är tom 
             if (Applications.Count == 0)
             {
                 Console.WriteLine("Det finns inga ansökningar att ta bort.");
@@ -166,6 +205,7 @@ namespace Job_Application_Tracker
 
             //ifall index är större eller lika med 0 och Applications.Count är större än index
             //Då ska det tas bort med hjälp av inbyggda metoden RemoveAt, indexet som angavs tas då bort 
+            if (index >= 0 && index < Applications.Count) // Samma kontroll som i UpdateStatus: finns platsen?
             if (index >= 0 && index < Applications.Count)
             {
                 Applications.RemoveAt(index);
@@ -178,12 +218,19 @@ namespace Job_Application_Tracker
         }
 
         // LINQ 1: Filtrera efter status
+        // Where = ett såll som bara släpper igenom det som stämmer.
         // Tips att minnas: Where = ett såll som bara släpper igenom det som stämmer.
         public void ShowByStatus()
         {
             Status status = ReadStatus("Ange status (Applied, Interview, Offer, Rejected): ");
 
             var filtered = Applications.Where(job => job.Status == status); //var = vet inte vad det ska vara för datatyp, låter c# själv bestämma.
+                                                                            //visa alla jobb som finns i listan där status stämmer med användarens val
+                                                                            //status-rubriken filtreras till så många jobb som har tex applied.
+           //ifall filtered listan inte gav resultat (mha any) så kommer det skrivas inga ansökningar med den statusen. 
+           // Any() svarar ja/nej på "finns det något alls i resultatet?"
+           // ! betyder NOT, alltså "om det INTE finns något"
+            if (!filtered.Any()) 
                                                                             //visa alla jobb som finns i listan där status stämmer med användarens val - status-rubriken filtreras till så många jobb som har tex applied.
 
             if (!filtered.Any()) // Any() = finns det något alls i resultatet?
@@ -200,6 +247,7 @@ namespace Job_Application_Tracker
 
         // LINQ 2: Sortera efter datum
         //sortera jobb efter jobbets ansökningsdatum med hjälp av funktionen OrderBy (sortera efter).
+        // OrderBy = äldst först
         // Tips att minnas: OrderBy = äldst först, OrderByDescending = nyast först.
         public void SortByDate()
         {
@@ -211,6 +259,12 @@ namespace Job_Application_Tracker
             }
         }
 
+        // LINQ 3: Visa statistik
+        public void ShowStatistics()
+        {
+            Console.WriteLine($"Totala ansökningar: {Applications.Count}");
+            //grupperar jobben efter status
+            //gruppera jobb efter jobbstatus (GroupBy), välj det nyckelvärde som i detta fallet är status och antal jobb
         // LINQ 3: Statistik
         // Tips att minnas: LINQ är ett löpande band, varje punkt (.) är en station.
         public void ShowStatistics()
@@ -248,10 +302,12 @@ namespace Job_Application_Tracker
         }
 
         // LINQ 4: Extra filter - ansökningar utan svar som är äldre än 14 dagar
+        // om svarstiden är tom och getdayssinceapplied är 14 så skrivs följande.. 
         // Tips att minnas: två villkor med && (OCH), båda måste stämma. Mjölken är öppnad OCH över två veckor gammal.
         public void ShowOldWithoutResponse()
         {
-            var oldWithoutResponse = Applications
+            var oldWithoutResponse = Applications  // ResponseDate == null  -> inget svar än
+                                                   // GetDaysSinceApplied() > 14 -> använder min egen metod från JobApplication
                 .Where(job => job.ResponseDate == null && job.GetDaysSinceApplied() > 14);
 
             if (!oldWithoutResponse.Any())   // Any() = finns det något alls?
