@@ -32,8 +32,8 @@ namespace Job_Application_Tracker
                 Console.WriteLine("5. Visa statistik (totalt antal, antal per status, genomsnittlig svarstid)");
                 Console.WriteLine("6. Uppdatera status på en ansökan");
                 Console.WriteLine("7. Ta bort en ansökan");
-                Console.WriteLine("8. Avsluta programmet");
-                Console.WriteLine("9. Visa ansökningar utan svar äldre än 14 dagar");
+                Console.WriteLine("8. Visa ansökningar utan svar äldre än 14 dagar");
+                Console.WriteLine("9. Avsluta programmet");
                 Console.Write("Ditt val: ");
 
                 // Tar emot val från användaren
@@ -41,7 +41,6 @@ namespace Job_Application_Tracker
                 Console.Clear(); // städar skärmen så att resultatet visas på en ren sida
 
                 //switch choice används för att hantera användarens val
-                // Tips att minnas: varje case är ett rum, break; stänger dörren ut ur rummet.
                 switch (choice)
                 {
                     case "1":
@@ -66,12 +65,13 @@ namespace Job_Application_Tracker
                         manager.DeleteJob();
                         break;
                     case "8":
+                        manager.ShowOldWithoutResponse();
+                        break;
+                    case "9":
                         running = false; // loopen slutar när running blir false
                         Console.WriteLine("Programmet avslutat, lycka till!");
                         break;
-                    case "9":
-                        manager.ShowOldWithoutResponse();
-                        break;
+                  
                     default:
                         Console.WriteLine("Ogiltigt val, välj mellan 1-9.");
                         break;
