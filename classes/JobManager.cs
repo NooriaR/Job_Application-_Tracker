@@ -21,6 +21,10 @@ namespace Job_Application_Tracker
                 if (int.TryParse(Console.ReadLine(), out int result))
                 {
                     return result; // giltigt tal, lämna tillbaka det och avsluta metoden
+                Console.Write(question);
+                if (int.TryParse(Console.ReadLine(), out int result))
+                {
+                    return result;
                 }
                 Console.WriteLine("Ogiltigt tal, försök igen.");
             }
@@ -49,6 +53,9 @@ namespace Job_Application_Tracker
                 string input = Console.ReadLine() ?? "";
 
                 //if sats måste användas för att omvandla input/string från användaren till enum
+                string input = Console.ReadLine() ?? "";
+
+                //if sats måste användas för att få ut omvandla input/string från användaren till enum
                 //det som kommer in måste gå att göra om till enum, om vi lyckas med det så kommer vår status få ett värde.
                 // true = strunta i stora/små bokstäver. IsDefined stoppar siffror som inte finns, t.ex. "99".
                 if (Enum.TryParse<Status>(input, true, out Status status) && Enum.IsDefined(typeof(Status), status))
@@ -68,6 +75,11 @@ namespace Job_Application_Tracker
 
             Console.WriteLine("PositionTitle:");
             string position = Console.ReadLine() ?? "";
+
+            DateTime datum = ReadDate("AnsökningsDatum (YYYY-MM-DD): ");
+
+            int lon = ReadInt("Lönekrav (kr): ");
+
 
             DateTime datum = ReadDate("AnsökningsDatum (YYYY-MM-DD): ");
 
@@ -108,6 +120,7 @@ namespace Job_Application_Tracker
 
             //för varje job i applications skriv ut numret och räkna sedan upp det med 1, så att nästa ansökan får nästa nummer.
             //hämta PrintSummary metoden (skriver ut informationen av varje jobb)
+            //hämta PrintSummary metoden (skriver ut med färg)
             foreach (var job in Applications)
             {
                 Console.WriteLine($"Ansökan nummer: {number++}");
@@ -126,6 +139,9 @@ namespace Job_Application_Tracker
 
                 // return avslutar metoden direkt, så att koden aldrig körs på en tom lista.
                 // Annars skulle programmet fråga efter ett nummer fast det inte finns något att välja.
+            if (Applications.Count == 0)
+            {
+                Console.WriteLine("Det finns inga ansökningar att uppdatera.");
                 return;
             }
 
@@ -148,6 +164,14 @@ namespace Job_Application_Tracker
 
                 //Går man tillbaka till Applied tas svarsdatumet bort igen.
                 //Ifall new status inte är applied så uppdateras svarsdatumet till dagens datum
+            //Ifall index är större eller lika med 0 och Applications.Count är större än index så finns ansökan
+            if (index >= 0 && index < Applications.Count)
+            {
+                Status newStatus = ReadStatus("Ny status (Applied, Interview, Offer, Rejected): ");
+
+                Applications[index].Status = newStatus;
+
+                // Ett svar har kommit när status ändras från Applied. Går man tillbaka till Applied tas svarsdatumet bort.
                 if (newStatus != Status.Applied)
                 {
                     Applications[index].ResponseDate = DateTime.Today;  //ResponseDate uppdateras
@@ -169,6 +193,7 @@ namespace Job_Application_Tracker
         public void DeleteJob()
         {
             if (Applications.Count == 0) //ifall listan är tom 
+            if (Applications.Count == 0)
             {
                 Console.WriteLine("Det finns inga ansökningar att ta bort.");
                 return;
@@ -181,6 +206,7 @@ namespace Job_Application_Tracker
             //ifall index är större eller lika med 0 och Applications.Count är större än index
             //Då ska det tas bort med hjälp av inbyggda metoden RemoveAt, indexet som angavs tas då bort 
             if (index >= 0 && index < Applications.Count) // Samma kontroll som i UpdateStatus: finns platsen?
+            if (index >= 0 && index < Applications.Count)
             {
                 Applications.RemoveAt(index);
                 Console.WriteLine("Ansökan borttagen.");
@@ -193,6 +219,7 @@ namespace Job_Application_Tracker
 
         // LINQ 1: Filtrera efter status
         // Where = ett såll som bara släpper igenom det som stämmer.
+        // Tips att minnas: Where = ett såll som bara släpper igenom det som stämmer.
         public void ShowByStatus()
         {
             Status status = ReadStatus("Ange status (Applied, Interview, Offer, Rejected): ");
@@ -204,6 +231,9 @@ namespace Job_Application_Tracker
            // Any() svarar ja/nej på "finns det något alls i resultatet?"
            // ! betyder NOT, alltså "om det INTE finns något"
             if (!filtered.Any()) 
+                                                                            //visa alla jobb som finns i listan där status stämmer med användarens val - status-rubriken filtreras till så många jobb som har tex applied.
+
+            if (!filtered.Any()) // Any() = finns det något alls i resultatet?
             {
                 Console.WriteLine("Inga ansökningar med den statusen.");
                 return;
@@ -218,6 +248,7 @@ namespace Job_Application_Tracker
         // LINQ 2: Sortera efter datum
         //sortera jobb efter jobbets ansökningsdatum med hjälp av funktionen OrderBy (sortera efter).
         // OrderBy = äldst först
+        // Tips att minnas: OrderBy = äldst först, OrderByDescending = nyast först.
         public void SortByDate()
         {
             var sorted = Applications.OrderBy(job => job.ApplicationDate);
@@ -234,6 +265,12 @@ namespace Job_Application_Tracker
             Console.WriteLine($"Totala ansökningar: {Applications.Count}");
             //grupperar jobben efter status
             //gruppera jobb efter jobbstatus (GroupBy), välj det nyckelvärde som i detta fallet är status och antal jobb
+        // LINQ 3: Statistik
+        // Tips att minnas: LINQ är ett löpande band, varje punkt (.) är en station.
+        public void ShowStatistics()
+        {
+            Console.WriteLine($"Totala ansökningar: {Applications.Count}");
+            //gruppera jobb efter jobbstatus (GroupBy = sortera tvätt i högar), välj det nyckelvärde som i detta fallet är status och antal jobb
             //med select bestämmer jag hur resultatet ska visas, i detta fall räkna antal jobb per status/key
             //select utförs efter jag har grupperat för att få det resultat jag önskar, om det hade varit tvärtom hade jag fått annat resultat
             var countByStatus = Applications.GroupBy(job => job.Status).Select(group => $"{group.Key}: {group.Count()}");
@@ -266,6 +303,7 @@ namespace Job_Application_Tracker
 
         // LINQ 4: Extra filter - ansökningar utan svar som är äldre än 14 dagar
         // om svarstiden är tom och getdayssinceapplied är 14 så skrivs följande.. 
+        // Tips att minnas: två villkor med && (OCH), båda måste stämma. Mjölken är öppnad OCH över två veckor gammal.
         public void ShowOldWithoutResponse()
         {
             var oldWithoutResponse = Applications  // ResponseDate == null  -> inget svar än

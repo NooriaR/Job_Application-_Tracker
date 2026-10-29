@@ -22,6 +22,9 @@ namespace Job_Application_Tracker
 
 
         //konstruktorn körs automatiskt när man skapar ett nytt objekt, det bestämmer vad ett objekt ska innehålla
+        //konstruktorn är den metod som körs automatiskt när man skapar ett nytt objekt.
+        //Den tar emot värden utifrån de arguemnt och sparar i objektets egna egenskaper.
+        //Attributer + de parametrar som finns under konstruktor 
         //konstruktorn heter samma som klassen och har ingen returtyp (inte ens void).
         public JobApplication(string companyName, string positionTitle, DateTime applicationDate, int salaryExpectation, Status status, DateTime? responseDate)
         {
@@ -42,9 +45,12 @@ namespace Job_Application_Tracker
         }
 
         //metod 2
+        // Kravet säger att metoden ska RETURNERA text (string), inte skriva ut den själv.
+        // Tips att minnas: return = kassören lämnar över kvittot. Utskriften sköter PrintSummary() nedan.
         //Returnerar en kort sammanfattning av ansökan
         public string GetSummary()
         {
+            // Välj färg beroende på status
             {
                 // ?. och ?? = om ResponseDate är tomt (null) skriver vi "Inget svar än" i stället
                 string response = ResponseDate?.ToString("yyyy-MM-dd") ?? "Inget svar än";
